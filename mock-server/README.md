@@ -46,6 +46,24 @@ Standalone Node.js + Express + persistent SQLite mock REST server for the `Store
 
 ---
 
+## Android App Connection & USB Testing (ADB Reverse)
+
+To connect the Android app to the standalone mock server from a physical device or emulator:
+
+1. **Start Mock Server**:
+   ```powershell
+   npm start
+   ```
+2. **Configure ADB Reverse (Physical Device / Emulator)**:
+   ```powershell
+   adb devices
+   adb -s <device-id> reverse tcp:8080 tcp:8080
+   ```
+3. **Development API Base URL**:
+   The Android app is configured to use `http://127.0.0.1:8080/api/v1/` for local testing via `adb reverse`.
+
+---
+
 ## PowerShell API Manual Testing Commands
 
 ### 1. Health Check Endpoint
