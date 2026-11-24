@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">StoreVisitManagement</string>
+    <string name="brand_name">StoreVisit</string>
+    <string name="brand_subtitle">Employee Workspace</string>
+    <string name="welcome_heading">Welcome back</string>
+    <string name="welcome_subtitle">Sign in to access your assigned stores.</string>
+    <string name="employee_id_label">Employee ID</string>
+    <string name="employee_id_hint">e.g. EMP-9402</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Enter your password</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="footer_text">StoreVisit Enterprise v1.0 • Secure Field Operations</string>
+    <string name="error_employee_id_empty">Please enter your Employee ID</string>
+    <string name="error_password_empty">Please enter your password</string>
+    <string name="online_signin_notice">Online sign-in will be enabled in the next phase.</string>
 </resources>

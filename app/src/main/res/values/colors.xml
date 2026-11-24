@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Premium Light Theme Enterprise Palette -->
+    <color name="primary">#2563EB</color>
+    <color name="primary_variant">#1D4ED8</color>
+    <color name="secondary">#4F46E5</color>
+    <color name="background_offwhite">#F8FAFC</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="border_divider">#E2E8F0</color>
+    <color name="error_red">#DC2626</color>
+    <color name="success_green">#16A34A</color>
 </resources>
