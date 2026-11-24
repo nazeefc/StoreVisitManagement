@@ -1,0 +1,17 @@
+{
+  "name": "store-visit-mock-server",
+  "version": "1.0.0",
+  "description": "Standalone REST Mock Server for StoreVisitManagement Android App",
+  "main": "server.js",
+  "scripts": {
+    "init-db": "node init-db.js",
+    "seed": "node seed.js",
+    "start": "node server.js",
+    "reset": "node reset.js",
+    "test": "node test-api.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "sqlite3": "^6.0.1"
+  }
+}
