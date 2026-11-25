@@ -1,8 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.StoreVisitManagement" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- Base application theme forced to Light for consistent enterprise SaaS experience -->
+    <style name="Base.Theme.StoreVisitManagement" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="android:windowBackground">@color/background_offwhite</item>
+        <item name="colorSurface">@color/surface_white</item>
+        <item name="colorError">@color/error_red</item>
     </style>
 
     <style name="Theme.StoreVisitManagement" parent="Base.Theme.StoreVisitManagement" />
