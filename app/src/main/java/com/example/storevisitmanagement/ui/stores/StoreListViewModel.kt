@@ -1,6 +1,7 @@
 package com.example.storevisitmanagement.ui.stores
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.storevisitmanagement.data.SessionManager
 import com.example.storevisitmanagement.data.remote.model.StoreDto
@@ -19,10 +20,9 @@ sealed class StoreListUiState {
     object LoggedOut : StoreListUiState()
 }
 
-class StoreListViewModel(
-    private val storeRepository: StoreRepository = StoreRepository(),
-    private val authRepository: AuthRepository = AuthRepository()
-) : ViewModel() {
+class StoreListViewModel(application: Application) : AndroidViewModel(application) {
+    private val storeRepository = StoreRepository(application)
+    private val authRepository = AuthRepository()
 
     private val _uiState = MutableStateFlow<StoreListUiState>(StoreListUiState.Loading)
     val uiState: StateFlow<StoreListUiState> = _uiState.asStateFlow()
@@ -73,7 +73,6 @@ class StoreListViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            // Call authRepository.logout() which executes API request with token before clearing session
             authRepository.logout()
             _uiState.value = StoreListUiState.LoggedOut
         }

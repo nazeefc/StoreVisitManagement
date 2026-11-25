@@ -8,22 +8,31 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.storevisitmanagement.data.remote.model.StoreDto
 import com.example.storevisitmanagement.databinding.ItemStoreBinding
 
-class StoreListAdapter : ListAdapter<StoreDto, StoreListAdapter.StoreViewHolder>(StoreDiffCallback()) {
+class StoreListAdapter(
+    private val onStoreClick: (StoreDto) -> Unit
+) : ListAdapter<StoreDto, StoreListAdapter.StoreViewHolder>(StoreDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoreViewHolder {
         val binding = ItemStoreBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return StoreViewHolder(binding)
+        return StoreViewHolder(binding, onStoreClick)
     }
 
     override fun onBindViewHolder(holder: StoreViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class StoreViewHolder(private val binding: ItemStoreBinding) : RecyclerView.ViewHolder(binding.root) {
+    class StoreViewHolder(
+        private val binding: ItemStoreBinding,
+        private val onStoreClick: (StoreDto) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(store: StoreDto) {
             binding.tvStoreName.text = store.name
             binding.tvStoreCode.text = store.code
             binding.tvStoreAddress.text = store.address
+
+            binding.root.setOnClickListener {
+                onStoreClick(store)
+            }
         }
     }
 

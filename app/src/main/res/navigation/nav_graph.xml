@@ -27,6 +27,25 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/storeListFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_storeListFragment_to_taskListFragment"
+            app:destination="@id/taskListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.example.storevisitmanagement.ui.tasks.TaskListFragment"
+        android:label="TaskListFragment"
+        tools:layout="@layout/fragment_task_list">
+        <argument
+            android:name="storeId"
+            app:argType="string" />
+        <argument
+            android:name="storeName"
+            app:argType="string" />
+        <argument
+            android:name="storeCode"
+            app:argType="string" />
     </fragment>
 
 </navigation>

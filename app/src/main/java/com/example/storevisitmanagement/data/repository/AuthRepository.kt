@@ -47,16 +47,26 @@ class AuthRepository {
 
     suspend fun logout(): Result<Unit> {
         return withContext(Dispatchers.IO) {
+            var remoteSuccess = false
+            var failureMessage: String? = null
             try {
-                // Send logout request with active Bearer token attached by AuthInterceptor
-                authService.logout()
+                val response = authService.logout()
+                if (response.isSuccessful) {
+                    remoteSuccess = true
+                } else {
+                    failureMessage = "Remote revocation failed (${response.code()}), but local session was cleared."
+                }
             } catch (e: Exception) {
-                // Ignore network failure during server logout, but ensure local session is cleared
+                failureMessage = "Offline logout: local session cleared successfully."
             } finally {
-                // Ensure local session is always cleared regardless of success/failure/exception
                 SessionManager.clearSession()
             }
-            Result.success(Unit)
+
+            if (remoteSuccess) {
+                Result.success(Unit)
+            } else {
+                Result.success(Unit) // Local logout is always successful for user safety
+            }
         }
     }
 }

@@ -42,7 +42,16 @@ class StoreListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        storeAdapter = StoreListAdapter()
+        storeAdapter = StoreListAdapter(
+            onStoreClick = { store ->
+                val bundle = Bundle().apply {
+                    putString("storeId", store.id)
+                    putString("storeName", store.name)
+                    putString("storeCode", store.code)
+                }
+                findNavController().navigate(R.id.action_storeListFragment_to_taskListFragment, bundle)
+            }
+        )
         binding.rvStores.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = storeAdapter
