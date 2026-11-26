@@ -5,6 +5,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.storevisitmanagement.data.SessionManager
+import com.example.storevisitmanagement.data.sync.SyncManager
 import com.example.storevisitmanagement.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -12,6 +14,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SessionManager.init(applicationContext)
+        SyncManager.init(applicationContext)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

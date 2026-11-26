@@ -55,6 +55,20 @@
             tools:text="INVENTORY" />
 
         <TextView
+            android:id="@+id/tvSyncStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_code_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTaskCategory"
+            tools:text="Pending Sync" />
+
+        <TextView
             android:id="@+id/tvTaskDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -66,7 +80,7 @@
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTaskTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvSyncStatus"
             tools:text="Verify aisle 3 beverage stock levels and ensure pricing tags are aligned." />
 
         <!-- Photo Evidence Label -->

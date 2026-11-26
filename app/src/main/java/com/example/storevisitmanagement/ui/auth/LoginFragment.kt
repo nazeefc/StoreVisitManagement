@@ -11,6 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.storevisitmanagement.R
+import com.example.storevisitmanagement.data.SessionManager
+import com.example.storevisitmanagement.data.sync.SyncManager
 import com.example.storevisitmanagement.databinding.FragmentLoginBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -32,6 +34,15 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        SessionManager.init(requireContext())
+        if (SessionManager.isLoggedIn()) {
+            SyncManager.enqueueSyncWork(requireContext())
+            try {
+                findNavController().navigate(R.id.action_loginFragment_to_storeListFragment)
+            } catch (_: Exception) {}
+            return
+        }
 
         binding.btnSignIn.setOnClickListener {
             val employeeId = binding.etEmployeeId.text?.toString()?.trim() ?: ""
@@ -78,6 +89,7 @@ class LoginFragment : Fragment() {
                         is AuthUiState.Success -> {
                             setLoading(false)
                             viewModel.resetState()
+                            SyncManager.enqueueSyncWork(requireContext())
                             findNavController().navigate(R.id.action_loginFragment_to_storeListFragment)
                         }
                         is AuthUiState.Error -> {

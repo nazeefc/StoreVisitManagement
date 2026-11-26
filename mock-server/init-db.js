@@ -45,6 +45,36 @@ db.serialize(() => {
         )
     `);
 
+    // Server Tasks table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS server_tasks (
+            id TEXT PRIMARY KEY,
+            store_id TEXT NOT NULL,
+            employee_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            category TEXT NOT NULL,
+            is_completed INTEGER NOT NULL DEFAULT 0,
+            is_deleted INTEGER NOT NULL DEFAULT 0,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            FOREIGN KEY(store_id) REFERENCES server_stores(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Server Photos table
+    db.run(`
+        CREATE TABLE IF NOT EXISTS server_photos (
+            id TEXT PRIMARY KEY,
+            task_id TEXT NOT NULL,
+            local_file_path TEXT NOT NULL,
+            server_filename TEXT NOT NULL,
+            is_deleted INTEGER NOT NULL DEFAULT 0,
+            created_at INTEGER NOT NULL,
+            FOREIGN KEY(task_id) REFERENCES server_tasks(id) ON DELETE CASCADE
+        )
+    `);
+
     console.log(`Database tables initialized successfully at ${path.basename(dbPath)}.`);
 });
 

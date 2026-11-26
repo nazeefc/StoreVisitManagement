@@ -1,5 +1,6 @@
 package com.example.storevisitmanagement.ui.tasks
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
@@ -74,6 +75,25 @@ class TaskListAdapter(
             binding.tvTaskCategory.text = task.category
             binding.tvTaskDescription.text = task.description
             binding.tvTaskDescription.visibility = if (task.description.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
+
+            // Bind Sync Status Badge
+            when (task.syncStatus) {
+                "SYNCED" -> {
+                    binding.tvSyncStatus.text = "Synced"
+                    binding.tvSyncStatus.setTextColor(Color.parseColor("#059669"))
+                    binding.tvSyncStatus.setBackgroundColor(Color.parseColor("#D1FAE5"))
+                }
+                "FAILED" -> {
+                    binding.tvSyncStatus.text = "Sync Failed"
+                    binding.tvSyncStatus.setTextColor(Color.parseColor("#DC2626"))
+                    binding.tvSyncStatus.setBackgroundColor(Color.parseColor("#FEE2E2"))
+                }
+                else -> {
+                    binding.tvSyncStatus.text = "Pending Sync"
+                    binding.tvSyncStatus.setTextColor(Color.parseColor("#D97706"))
+                    binding.tvSyncStatus.setBackgroundColor(Color.parseColor("#FEF3C7"))
+                }
+            }
 
             binding.cbTaskComplete.setOnCheckedChangeListener(null)
             binding.cbTaskComplete.isChecked = task.isCompleted

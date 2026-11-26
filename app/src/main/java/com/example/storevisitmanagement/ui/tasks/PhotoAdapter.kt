@@ -1,6 +1,7 @@
 package com.example.storevisitmanagement.ui.tasks
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
@@ -49,11 +50,31 @@ class PhotoAdapter(
             loadJob?.cancel()
             loadJob = null
             binding.ivPhotoThumb.setImageDrawable(null)
+            binding.tvPhotoSyncBadge.text = ""
         }
 
         fun bind(photo: PhotoEntity) {
             binding.ivPhotoThumb.setImageDrawable(null)
             loadJob?.cancel()
+
+            // Bind Photo Sync Badge
+            when (photo.syncStatus) {
+                "SYNCED" -> {
+                    binding.tvPhotoSyncBadge.text = "Synced"
+                    binding.tvPhotoSyncBadge.setTextColor(Color.parseColor("#059669"))
+                    binding.tvPhotoSyncBadge.setBackgroundColor(Color.parseColor("#D1FAE5"))
+                }
+                "FAILED" -> {
+                    binding.tvPhotoSyncBadge.text = "Failed"
+                    binding.tvPhotoSyncBadge.setTextColor(Color.parseColor("#DC2626"))
+                    binding.tvPhotoSyncBadge.setBackgroundColor(Color.parseColor("#FEE2E2"))
+                }
+                else -> {
+                    binding.tvPhotoSyncBadge.text = "Pending"
+                    binding.tvPhotoSyncBadge.setTextColor(Color.parseColor("#D97706"))
+                    binding.tvPhotoSyncBadge.setBackgroundColor(Color.parseColor("#FEF3C7"))
+                }
+            }
 
             loadJob = viewLifecycleOwner.lifecycleScope.launch {
                 val bitmap = withContext(Dispatchers.IO) {
