@@ -2,6 +2,7 @@ package com.example.storevisitmanagement.data.remote
 
 import com.example.storevisitmanagement.data.remote.api.AuthApiService
 import com.example.storevisitmanagement.data.remote.api.StoreApiService
+import com.example.storevisitmanagement.data.remote.api.SyncApiService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -31,5 +32,30 @@ object ApiClient {
 
     val storeService: StoreApiService by lazy {
         retrofit.create(StoreApiService::class.java)
+    }
+
+    val syncService: SyncApiService by lazy {
+        retrofit.create(SyncApiService::class.java)
+    }
+
+    fun createSyncService(token: String): SyncApiService {
+        val client = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+                chain.proceed(request)
+            }
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SyncApiService::class.java)
     }
 }

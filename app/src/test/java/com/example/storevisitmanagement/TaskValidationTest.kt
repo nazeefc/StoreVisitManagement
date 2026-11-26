@@ -1,8 +1,10 @@
 package com.example.storevisitmanagement
 
+import com.example.storevisitmanagement.data.local.entity.PhotoEntity
 import com.example.storevisitmanagement.data.local.entity.TaskEntity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -41,6 +43,34 @@ class TaskValidationTest {
         val completed = tasks.filter { it.isCompleted }
         assertEquals(1, completed.size)
         assertEquals("Task 2", completed[0].title)
+    }
+
+    @Test
+    fun testTaskAndPhotoSyncFieldsDefaults() {
+        val task = TaskEntity(
+            id = "task-1",
+            storeId = "STR-001",
+            employeeId = "EMP-9402",
+            title = "Test Task",
+            description = "Desc",
+            category = "INVENTORY",
+            isCompleted = false,
+            createdAt = 1000L,
+            updatedAt = 1000L
+        )
+        assertEquals("PENDING", task.syncStatus)
+        assertFalse(task.isDeleted)
+        assertNull(task.lastSyncedAt)
+
+        val photo = PhotoEntity(
+            id = "photo-1",
+            taskId = "task-1",
+            localFilePath = "/photos/img1.jpg",
+            createdAt = 1000L
+        )
+        assertEquals("PENDING", photo.syncStatus)
+        assertFalse(photo.isDeleted)
+        assertNull(photo.lastSyncedAt)
     }
 
     @Test

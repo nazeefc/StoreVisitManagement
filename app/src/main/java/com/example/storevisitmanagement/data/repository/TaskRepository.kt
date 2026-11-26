@@ -1,12 +1,12 @@
 package com.example.storevisitmanagement.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.example.storevisitmanagement.data.SessionManager
 import com.example.storevisitmanagement.data.local.AppDatabase
 import com.example.storevisitmanagement.data.local.entity.PhotoEntity
 import com.example.storevisitmanagement.data.local.entity.StoreEntity
 import com.example.storevisitmanagement.data.local.entity.TaskEntity
+import com.example.storevisitmanagement.data.sync.SyncManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -18,10 +18,6 @@ class TaskRepository(context: Context) {
     private val taskDao = database.taskDao()
     private val storeDao = database.storeDao()
     private val photoDao = database.photoDao()
-
-    companion object {
-        private const val TAG = "TaskRepository"
-    }
 
     fun getTasksFlow(storeId: String, employeeId: String): Flow<List<TaskEntity>> {
         return taskDao.getTasksForStore(storeId, employeeId)
@@ -37,7 +33,9 @@ class TaskRepository(context: Context) {
             if (store == null || store.assignedEmployeeId != employeeId) {
                 throw SecurityException("Store does not exist or is not assigned to current employee.")
             }
-            taskDao.insertTask(task)
+            val pendingTask = task.copy(syncStatus = "PENDING")
+            taskDao.insertTask(pendingTask)
+            SyncManager.enqueueSyncWork(appContext)
         }
     }
 
@@ -58,12 +56,14 @@ class TaskRepository(context: Context) {
                 description = task.description,
                 category = task.category,
                 isCompleted = task.isCompleted,
-                updatedAt = System.currentTimeMillis()
+                syncStatus = "PENDING",
+                updatedAt = maxOf(System.currentTimeMillis(), existing.updatedAt + 1L)
             )
             val affected = taskDao.updateTask(updated)
             if (affected <= 0) {
                 throw Exception("Failed to update task in database.")
             }
+            SyncManager.enqueueSyncWork(appContext)
         }
     }
 
@@ -79,32 +79,16 @@ class TaskRepository(context: Context) {
                 throw SecurityException("Store assignment invalid for current employee.")
             }
 
-            // Gather photos associated with task before deleting Room record using employeeId
-            val photos = photoDao.getPhotosForTaskSync(task.id, employeeId)
-
-            // 1. Delete Room task record first (CASCADE removes photo records in Room)
-            val affected = taskDao.deleteTask(task)
+            // Keep a tombstone for every sync state until the server acknowledges it.
+            val affected = taskDao.markTaskDeleted(
+                task.id,
+                employeeId,
+                maxOf(System.currentTimeMillis(), existing.updatedAt + 1L)
+            )
             if (affected <= 0) {
-                throw Exception("Failed to delete task from database.")
+                throw Exception("Failed to mark task deleted.")
             }
-
-            // 2. After successful Room deletion, attempt to delete validated photo files
-            val photosDir = File(context.filesDir, "photos").canonicalFile
-            for (photo in photos) {
-                try {
-                    val targetFile = File(photo.localFilePath).canonicalFile
-                    val relative = photosDir.toPath().relativize(targetFile.toPath())
-                    val isInside = !relative.startsWith("..") && !relative.isAbsolute
-                    if (isInside && targetFile.exists()) {
-                        val deleted = targetFile.delete()
-                        if (!deleted && targetFile.exists()) {
-                            Log.w(TAG, "Failed to delete physical photo file: ${targetFile.absolutePath}")
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Error cleaning up photo file: ${photo.localFilePath}", e)
-                }
-            }
+            SyncManager.enqueueSyncWork(appContext)
         }
     }
 
@@ -147,7 +131,9 @@ class TaskRepository(context: Context) {
             if (store == null || store.assignedEmployeeId != employeeId) {
                 throw SecurityException("Store assignment invalid for current employee.")
             }
-            photoDao.insertPhoto(photo)
+            val pendingPhoto = photo.copy(syncStatus = "PENDING")
+            photoDao.insertPhoto(pendingPhoto)
+            SyncManager.enqueueSyncWork(appContext)
         }
     }
 
@@ -167,28 +153,12 @@ class TaskRepository(context: Context) {
                 throw SecurityException("Store assignment invalid for current employee.")
             }
 
-            // 1. Delete Room photo record first
-            val affected = photoDao.deletePhotoById(photoId)
+            // Keep the marker until the server confirms deletion, even for never-uploaded photos.
+            val affected = photoDao.markPhotoDeleted(photoId, employeeId)
             if (affected <= 0) {
-                throw Exception("Failed to delete photo record from database.")
+                throw Exception("Failed to mark photo deleted.")
             }
-
-            // 2. After successful Room deletion, attempt to delete the validated file
-            try {
-                val photosDir = File(context.filesDir, "photos").canonicalFile
-                val targetFile = File(photo.localFilePath).canonicalFile
-                val relative = photosDir.toPath().relativize(targetFile.toPath())
-                val isInside = !relative.startsWith("..") && !relative.isAbsolute
-
-                if (isInside && targetFile.exists()) {
-                    val deleted = targetFile.delete()
-                    if (!deleted && targetFile.exists()) {
-                        Log.w(TAG, "Failed to delete physical photo file: ${targetFile.absolutePath}")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Error cleaning up photo file: ${photo.localFilePath}", e)
-            }
+            SyncManager.enqueueSyncWork(appContext)
         }
     }
 }

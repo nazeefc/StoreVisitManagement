@@ -44,6 +44,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.exifinterface)
 
+    // WorkManager & Security
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.security.crypto)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

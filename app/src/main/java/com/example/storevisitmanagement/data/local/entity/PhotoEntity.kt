@@ -1,5 +1,6 @@
 package com.example.storevisitmanagement.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -24,5 +25,11 @@ data class PhotoEntity(
     val id: String,
     val taskId: String,
     val localFilePath: String,
-    val createdAt: Long
+    val createdAt: Long,
+    @ColumnInfo(defaultValue = "'PENDING'")
+    val syncStatus: String = "PENDING",
+    @ColumnInfo(defaultValue = "0")
+    val isDeleted: Boolean = false,
+    @ColumnInfo(defaultValue = "NULL")
+    val lastSyncedAt: Long? = null
 )

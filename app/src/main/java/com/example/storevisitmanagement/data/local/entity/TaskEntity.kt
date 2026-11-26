@@ -1,5 +1,6 @@
 package com.example.storevisitmanagement.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -30,5 +31,11 @@ data class TaskEntity(
     val category: String,
     val isCompleted: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    @ColumnInfo(defaultValue = "'PENDING'")
+    val syncStatus: String = "PENDING",
+    @ColumnInfo(defaultValue = "0")
+    val isDeleted: Boolean = false,
+    @ColumnInfo(defaultValue = "NULL")
+    val lastSyncedAt: Long? = null
 )

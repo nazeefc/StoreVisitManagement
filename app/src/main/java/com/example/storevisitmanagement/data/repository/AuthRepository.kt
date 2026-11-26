@@ -4,6 +4,7 @@ import com.example.storevisitmanagement.data.SessionManager
 import com.example.storevisitmanagement.data.remote.ApiClient
 import com.example.storevisitmanagement.data.remote.model.LoginData
 import com.example.storevisitmanagement.data.remote.model.LoginRequest
+import com.example.storevisitmanagement.data.sync.SyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -18,7 +19,9 @@ class AuthRepository {
                     val body = response.body()
                     val loginData = body?.data
                     if (body?.status == "success" && loginData != null) {
-                        SessionManager.setSession(loginData.token, loginData.employee)
+                        // Stop any prior employee's sync before installing the new session
+                        SyncManager.cancelAllSyncWork()
+                        SessionManager.setSession(loginData.token, loginData.employee, loginData.expires_at)
                         Result.success(loginData)
                     } else {
                         Result.failure(Exception(body?.message ?: "Login failed. Please verify credentials."))
@@ -48,17 +51,16 @@ class AuthRepository {
     suspend fun logout(): Result<Unit> {
         return withContext(Dispatchers.IO) {
             var remoteSuccess = false
-            var failureMessage: String? = null
             try {
                 val response = authService.logout()
                 if (response.isSuccessful) {
                     remoteSuccess = true
-                } else {
-                    failureMessage = "Remote revocation failed (${response.code()}), but local session was cleared."
                 }
-            } catch (e: Exception) {
-                failureMessage = "Offline logout: local session cleared successfully."
+            } catch (_: Exception) {
+                // Ignore network failure during server logout, but ensure local session is cleared
             } finally {
+                // Stop queued/running sync before clearing session (logout / account isolation)
+                SyncManager.cancelAllSyncWork()
                 SessionManager.clearSession()
             }
 
