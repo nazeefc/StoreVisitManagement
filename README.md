@@ -311,7 +311,52 @@ No independent Codex re-review has been performed after these corrections.
 
 Day 17 implementation and the listed verification are complete; the post-correction independent review remains outstanding. Day 18 focuses on debugging and monitoring: add clear sync diagnostics without logging tokens or credentials, verify session-expiry UI handling, and repeat retry/re-login scenarios on a device while observing WorkManager and network behavior.
 
+---
+
+## Day 18 — Debug Monitoring & Session Expiry Fix
+
+### Objectives and Implementation
+Day 18 addresses runtime monitoring, session expiry handling, and robust network failure recovery.
+
+- **Session-Expiry Fix**: Resolved the defect where HTTP 401 responses left users stranded on protected task screens. `SessionManager` now exposes `isSessionValid` as a `StateFlow`, which `MainActivity` observes via lifecycle-aware collection (`repeatOnLifecycle`) to automatically navigate to Login and clear the protected back stack.
+- **Network Failure & Recovery**: Verified offline task creation, automatic synchronization upon reconnection, HTTP 500 retry recovery, socket timeout handling (15s threshold), process termination persistence, and partial mid-sync interruption recovery.
+
+### Manual Testing Evidence
+- Task creation, editing, and completion: **PASS** (**VERIFIED**)
+- All, Pending, and Completed filters: **PASS** (**VERIFIED**)
+- Offline task creation & persistence: **PASS** (**VERIFIED**)
+- Offline camera capture & photo attachment: **PASS** (**VERIFIED**)
+- Photo thumbnail & fullscreen preview: **PASS** (**VERIFIED**)
+- App close & reopen persistence: **PASS** (**VERIFIED**)
+- Offline access (internet disabled & mock server stopped): **PASS** (**VERIFIED**)
+- Network failure & recovery (ADB reverse toggle): **PASS** (**VERIFIED**)
+- HTTP 500 failure & retry recovery: **PASS** (**VERIFIED**)
+- Server timeout handling (15s threshold): **PASS** (**VERIFIED**)
+- Session expiry automatic login redirection: **VERIFIED**
+- Process kill & restart: **PASS** (**VERIFIED**)
+- Mid-sync interruption: **PARTIAL**
+
+### Independent Review & Verification
+- **Gradle Build**: Successful (`:app:assembleDebug`).
+- **Unit Tests**: 10 passed, 0 failed (`TaskValidationTest`).
+- **Mock Server Tests**: Not rerun on Day 18. Day 17 recorded 26 passing API tests.
+- **Git Diff Check**: Passed with zero whitespace errors.
+- **Codex Verdict**: **PASS WITH MINOR OBSERVATION** (Note: only reported Day 18 observation is silently caught navigation exceptions).
+- **Outstanding Monitoring Verification**: Actual in-flight interruption, automatic recovery after prolonged backoff, failed-state monitoring demonstration, and dashboard screenshot evidence.
+
 ## Daily Progress
 * **Day 15**: Employee authentication, REST API integration, Assigned Stores Dashboard, and store search.
 * **Day 16**: Offline task CRUD, Room persistence, camera capture, JPEG compression, photo evidence management, UI polish, and physical-device testing.
 * **Day 17**: Offline-first WorkManager synchronization, persistent encrypted session, retry and recovery, server idempotency, timestamp conflict handling, and deletion tombstones.
+* **Day 18**: Debug monitoring, session-expiry bug fix, comprehensive manual device testing, and final documentation completed.
+* **Day 19 onward**: Not started.
+
+---
+
+## Remaining Submission Tasks
+* Actual in-flight interruption and automatic recovery testing.
+* Automatic recovery after prolonged backoff testing.
+* Failed-state monitoring demonstration.
+* Dashboard screenshot evidence.
+* Final APK submission verification.
+* Git commit and push (performed externally by user).

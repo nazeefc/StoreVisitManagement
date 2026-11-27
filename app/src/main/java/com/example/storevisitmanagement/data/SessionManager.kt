@@ -6,6 +6,9 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.example.storevisitmanagement.data.remote.model.EmployeeDto
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class SessionSnapshot(
     val employeeId: String,
@@ -18,6 +21,9 @@ object SessionManager {
     private var prefs: SharedPreferences? = null
     private val gson = Gson()
     private val lock = Any()
+
+    private val _isSessionValid = MutableStateFlow(false)
+    val isSessionValid: StateFlow<Boolean> = _isSessionValid.asStateFlow()
 
     fun init(context: Context) {
         synchronized(lock) {
@@ -50,6 +56,8 @@ object SessionManager {
             }
             if (currentEmployee == null) {
                 clearSessionLocked()
+            } else {
+                _isSessionValid.value = true
             }
         } else {
             clearSessionLocked()
@@ -66,6 +74,7 @@ object SessionManager {
                 putLong("expires_at", expiresAt)
                 apply()
             }
+            _isSessionValid.value = true
         }
     }
 
@@ -79,6 +88,7 @@ object SessionManager {
         authToken = null
         currentEmployee = null
         prefs?.edit()?.clear()?.apply()
+        _isSessionValid.value = false
     }
 
     private fun isExpiredLocked(): Boolean {
@@ -155,5 +165,13 @@ object SessionManager {
         }
     }
 
-    fun isLoggedIn(): Boolean = !getToken().isNullOrBlank()
+    fun isLoggedIn(): Boolean {
+        synchronized(lock) {
+            if (isExpiredLocked()) {
+                clearSessionLocked()
+                return false
+            }
+            return !authToken.isNullOrBlank()
+        }
+    }
 }
